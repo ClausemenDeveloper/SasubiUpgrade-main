@@ -14,13 +14,14 @@ public class Main extends Application {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/sasubiupgrade/view/StudentLoginView.fxml"));
         Parent root = loader.load();
 
-        Scene scene = new Scene(root);
+        Scene scene = new Scene(root);//root
         primaryStage.setTitle("Sistema de Pagamentos - Login");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 
     public static void main(String[] args) {
-        launch(args);
+        launch(args);//mostra
+        
     }
 }
