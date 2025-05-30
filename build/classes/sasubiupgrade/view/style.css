@@ -1,0 +1,12 @@
+.button {
+    -fx-font-size: 14px;
+    -fx-padding: 10;
+    -fx-background-color: darkblue;
+    -fx-text-fill: white;
+    -fx-alignment: center;
+}
+
+/* Ensure buttons scale with the container */
+.button:pressed {
+    -fx-background-color: #003087; /* Slightly darker blue on press */
+}
