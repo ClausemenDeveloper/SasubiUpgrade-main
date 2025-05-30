@@ -78,7 +78,7 @@ public class CantinaController {
         loadFromFile();
         filaPedidos.setItems(pedidos);
     }
-
+    //fazer o pedido
     @FXML
     public void fazerPedido() {
         String nome = inputNome.getText().trim();
