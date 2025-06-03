@@ -75,15 +75,6 @@ public class MainController {
         }
     }
 
-    @FXML
-    public void navigateToTransportadora() {
-        try {
-            carregarPagina("/sasubiupgrade/view/TransportadoraView.fxml", TransportadoraController.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-            showErrorAlert("Erro ao carregar a página: " + e.getMessage());
-        }
-    }
 
     @FXML
     public void logout() {
@@ -120,9 +111,6 @@ public class MainController {
             controller.setEstudanteLogado(nomeEstudante, saldoDevido, primaryStage);
         } else if (controllerType == EncomendasController.class) {
             EncomendasController controller = loader.getController();
-            controller.setEstudanteLogado(nomeEstudante, saldoDevido, primaryStage);
-        } else if (controllerType == TransportadoraController.class) {
-            TransportadoraController controller = loader.getController();
             controller.setEstudanteLogado(nomeEstudante, saldoDevido, primaryStage);
         }
 
