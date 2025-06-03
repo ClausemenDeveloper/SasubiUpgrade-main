@@ -103,41 +103,49 @@ public class EncomendasController {
         }
     }
 
-    private void loadEncomendas() {
-        try {
-            encomendas.clear();
-            // Load student-specific local orders
-            if (Files.exists(Paths.get(caminhoArquivoLocal))) {
-                List<String> linhas = Files.readAllLines(Paths.get(caminhoArquivoLocal), StandardCharsets.UTF_8);
-                for (String linha : linhas) {
-                    if (linha.contains("Estudante: " + nomeEstudante)) {
-                        encomendas.add(linha);
-                    }
+ private void loadEncomendas() {
+    try {
+        encomendas.clear();
+        // Load student-specific local orders
+        if (Files.exists(Paths.get(caminhoArquivoLocal))) {
+            List<String> linhas = Files.readAllLines(Paths.get(caminhoArquivoLocal), StandardCharsets.UTF_8);
+            for (String linha : linhas) {
+                if (linha.contains("Estudante: " + nomeEstudante)) {
+                    encomendas.add(linha);
                 }
             }
-            // Load external orders (from Transportadora)
-            if (Files.exists(Paths.get(CAMINHO_ARQUIVO_REPORTADO))) {
-                List<String> linhas = Files.readAllLines(Paths.get(CAMINHO_ARQUIVO_REPORTADO), StandardCharsets.UTF_8);
-                for (String linha : linhas) {
-                    if (linha.contains("Estudante: " + nomeEstudante)) {
-                        encomendas.add(linha);
-                    }
-                }
-            }
-            // Manually add some sample orders for testing
-            if (nomeEstudante != null && encomendas.isEmpty()) {
-                String dataRegistro = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-                encomendas.add("ID: ENC001 | Estudante: " + nomeEstudante + " | Registrado em: " + dataRegistro + " | Fonte: Local");
-                encomendas.add("ID: ENC002 | Estudante: " + nomeEstudante + " | Registrado em: " + dataRegistro + " | Fonte: Externa: DHL (ID: 12345)");
-                saveToFileLocal(); // Save the manually added orders
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Erro ao carregar as encomendas: " + e.getMessage());
-            alert.showAndWait();
         }
+        // Load external orders (from Transportadora)
+        if (Files.exists(Paths.get(CAMINHO_ARQUIVO_REPORTADO))) {
+            List<String> linhas = Files.readAllLines(Paths.get(CAMINHO_ARQUIVO_REPORTADO), StandardCharsets.UTF_8);
+            for (String linha : linhas) {
+                if (linha.contains("Estudante: " + nomeEstudante)) {
+                    encomendas.add(linha);
+                }
+            }
+        }
+        // Manually add some sample orders for testing
+        if (nomeEstudante != null && encomendas.isEmpty()) {
+            String dataRegistro = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+            encomendas.add("ID: ENC001 | Estudante: " + nomeEstudante + " | Registrado em: " + dataRegistro + " | Fonte: Local");
+            encomendas.add("ID: ENC002 | Estudante: " + nomeEstudante + " | Registrado em: " + dataRegistro + " | Fonte: Externa: DHL (ID: 12345)");
+            // Additional sample orders for specific students
+            if ("Clausemen Custodio Nanro".equals(nomeEstudante)) {
+                encomendas.add("ID: ENC003 | Estudante: Clausemen Custodio Nanro | Registrado em: " + dataRegistro + " | Fonte: Local");
+                encomendas.add("ID: ENC004 | Estudante: Clausemen Custodio Nanro | Registrado em: " + dataRegistro + " | Fonte: Externa: FedEx (ID: 67890)");
+            } else if ("Ana Silva".equals(nomeEstudante)) {
+                encomendas.add("ID: ENC005 | Estudante: Ana Silva | Registrado em: " + dataRegistro + " | Fonte: Local");
+            } else if ("Joao Maravilhoso".equals(nomeEstudante)) {
+                encomendas.add("ID: ENC006 | Estudante: Joao Maravilhoso | Registrado em: " + dataRegistro + " | Fonte: Externa: UPS (ID: 54321)");
+            }
+            saveToFileLocal(); // Save the manually added orders
+        }
+    } catch (IOException e) {
+        e.printStackTrace();
+        Alert alert = new Alert(Alert.AlertType.ERROR, "Erro ao carregar as encomendas: " + e.getMessage());
+        alert.showAndWait();
     }
-
+}
     private void saveToFileLocal() {
         try {
             Files.createDirectories(Paths.get(caminhoArquivoLocal).getParent());
