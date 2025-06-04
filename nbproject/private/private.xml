@@ -3,28 +3,11 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/clausemen-custodio-nanro/NetBeansProjects/SasubiUpgrade-main/src/sasubiupgrade/controller/MainController.java</file>
-            <file>file:/home/clausemen-custodio-nanro/NetBeansProjects/SasubiUpgrade-main/src/sasubiupgrade/controller/CantinaController.java</file>
+            <file>file:/home/clausemen-custodio-nanro/NetBeansProjects/SasubiUpgrade-main/src/sasubiupgrade/Main.java</file>
             <file>file:/home/clausemen-custodio-nanro/NetBeansProjects/SasubiUpgrade-main/src/sasubiupgrade/controller/EncomendasController.java</file>
-            <file>file:/home/clausemen-custodio-nanro/NetBeansProjects/SasubiUpgrade-main/src/sasubiupgrade/controller/ResidenciaController.java</file>
+            <file>file:/home/clausemen-custodio-nanro/NetBeansProjects/SasubiUpgrade-main/src/sasubiupgrade/controller/MainController.java</file>
             <file>file:/home/clausemen-custodio-nanro/NetBeansProjects/SasubiUpgrade-main/src/sasubiupgrade/controller/StudentLoginController.java</file>
-            <file>file:/home/clausemen-custodio-nanro/NetBeansProjects/SasubiUpgrade-main/src/sasubiupgrade/controller/StudentRegisterController.java</file>
-            <file>file:/home/clausemen-custodio-nanro/NetBeansProjects/SasubiUpgrade-main/src/sasubiupgrade/model/Encomenda.java</file>
-            <file>file:/home/clausemen-custodio-nanro/NetBeansProjects/SasubiUpgrade-main/src/sasubiupgrade/model/Gestor.java</file>
-            <file>file:/home/clausemen-custodio-nanro/NetBeansProjects/SasubiUpgrade-main/src/sasubiupgrade/model/PagamentoResidencia.java</file>
-            <file>file:/home/clausemen-custodio-nanro/NetBeansProjects/SasubiUpgrade-main/src/sasubiupgrade/model/PedidoCantina.java</file>
-            <file>file:/home/clausemen-custodio-nanro/NetBeansProjects/SasubiUpgrade-main/src/sasubiupgrade/model/Servico.java</file>
-            <file>file:/home/clausemen-custodio-nanro/NetBeansProjects/SasubiUpgrade-main/src/sasubiupgrade/model/Transportadora.java</file>
-            <file>file:/home/clausemen-custodio-nanro/NetBeansProjects/SasubiUpgrade-main/src/sasubiupgrade/view/CantinaView.fxml</file>
-            <file>file:/home/clausemen-custodio-nanro/NetBeansProjects/SasubiUpgrade-main/src/sasubiupgrade/view/EncomendasView.fxml</file>
-            <file>file:/home/clausemen-custodio-nanro/NetBeansProjects/SasubiUpgrade-main/src/sasubiupgrade/view/MainView.fxml</file>
-            <file>file:/home/clausemen-custodio-nanro/NetBeansProjects/SasubiUpgrade-main/src/sasubiupgrade/view/ResidenciaView.fxml</file>
-            <file>file:/home/clausemen-custodio-nanro/NetBeansProjects/SasubiUpgrade-main/src/sasubiupgrade/view/StudentLoginView.fxml</file>
-            <file>file:/home/clausemen-custodio-nanro/NetBeansProjects/SasubiUpgrade-main/src/sasubiupgrade/view/StudentRegisterView.fxml</file>
-            <file>file:/home/clausemen-custodio-nanro/NetBeansProjects/SasubiUpgrade-main/src/sasubiupgrade/view/style.css</file>
-            <file>file:/home/clausemen-custodio-nanro/NetBeansProjects/SasubiUpgrade-main/src/Transportadora/model/Entrega.java</file>
-            <file>file:/home/clausemen-custodio-nanro/NetBeansProjects/SasubiUpgrade-main/src/Transportadora/view/TransportadoraView.fxml</file>
-            <file>file:/home/clausemen-custodio-nanro/NetBeansProjects/SasubiUpgrade-main/src/Transportadora/controller/TransportadoraController.java</file>
+            <file>file:/home/clausemen-custodio-nanro/NetBeansProjects/SasubiUpgrade-main/src/sasubiupgrade/controller/CantinaController.java</file>
         </group>
     </open-files>
 </project-private>
