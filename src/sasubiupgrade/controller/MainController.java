@@ -92,33 +92,32 @@ public class MainController {
         }
     }
 
-    private <T> void carregarPagina(String fxmlPath, Class<T> controllerType) throws IOException {
-        if (primaryStage == null) {
-            throw new IllegalStateException("Stage não foi configurado.");
-        }
-
-        FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-        if (loader.getLocation() == null) {
-            throw new IOException("Recurso FXML não encontrado: " + fxmlPath);
-        }
-        Parent pagina = loader.load();
-
-        if (controllerType == ResidenciaController.class) {
-            ResidenciaController controller = loader.getController();
-            controller.setEstudanteLogado(nomeEstudante, saldoDevido, primaryStage);
-        } else if (controllerType == CantinaController.class) {
-            CantinaController controller = loader.getController();
-            controller.setEstudanteLogado(nomeEstudante, saldoDevido, primaryStage);
-        } else if (controllerType == EncomendasController.class) {
-            EncomendasController controller = loader.getController();
-            controller.setEstudanteLogado(nomeEstudante, saldoDevido, primaryStage);
-        }
-
-        Scene scene = new Scene(pagina);
-        primaryStage.setScene(scene);
-        primaryStage.show();
+private <T> void carregarPagina(String fxmlPath, Class<T> controllerType) throws IOException {
+    if (primaryStage == null) {
+        throw new IllegalStateException("Stage não foi configurado.");
     }
 
+    FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+    if (loader.getLocation() == null) {
+        throw new IOException("Recurso FXML não encontrado: " + fxmlPath);
+    }
+    Parent pagina = loader.load();
+
+    T controller = loader.getController();
+    if (controllerType == ResidenciaController.class) {
+        ((ResidenciaController) controller).setEstudanteLogado(nomeEstudante, saldoDevido, primaryStage);
+    } else if (controllerType == CantinaController.class) {
+        ((CantinaController) controller).setEstudanteLogado(nomeEstudante, saldoDevido, primaryStage);
+    } else if (controllerType == EncomendasController.class) {
+        EncomendasController encomendasController = (EncomendasController) controller;
+        encomendasController.setEstudanteLogado(nomeEstudante, saldoDevido, primaryStage);
+        encomendasController.refreshEncomendas(); // Ensure data is refreshed
+    }
+
+    Scene scene = new Scene(pagina);
+    primaryStage.setScene(scene);
+    primaryStage.show();
+}
     private void showErrorAlert(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR, message);
         alert.showAndWait();

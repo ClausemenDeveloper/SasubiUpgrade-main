@@ -7,7 +7,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="CENTER" spacing="10" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="transportadora.controller.TransportadoraController">
+<VBox alignment="CENTER" spacing="10" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Transportadora.controller.TransportadoraController">
     <padding>
         <Insets bottom="20" left="20" right="20" top="20" />
     </padding>

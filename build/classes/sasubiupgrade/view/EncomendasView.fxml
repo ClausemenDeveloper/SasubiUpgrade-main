@@ -29,7 +29,8 @@
     </Label>
 
     <Button fx:id="encomendaRecebidaButton" onAction="#encomendaRecebida" style="-fx-background-color: #002855; -fx-text-fill: white; -fx-font-weight: bold;" text="Encomenda Recebida" />
-
+    <Button onAction="#refreshEncomendas" style="-fx-background-color: #002855; -fx-text-fill: white; -fx-font-weight: bold;" text="Atualizar" />
+    
     <Label style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Lista de Encomendas" />
     <ListView fx:id="listaEncomendas" prefHeight="150">
         <style>

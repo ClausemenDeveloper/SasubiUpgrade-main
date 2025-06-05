@@ -13,9 +13,18 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import javafx.application.Platform;
 import sasubiupgrade.model.Encomenda;
 
 public class EncomendasController {
@@ -29,34 +38,42 @@ public class EncomendasController {
     private String nomeEstudante;
     private double saldoDevido;
     private Stage primaryStage;
-    private String caminhoArquivoLocal; // Non-static, student-specific
-    private static final String CAMINHO_ARQUIVO_REPORTADO = "encomendas_reportadas.csv";
+    private String caminhoArquivoLocal;
+private static final String CAMINHO_ARQUIVO_REPORTADO = "/home/clausemen-custodio-nanro/shared/encomendas_reportadas.csv";
 
-    public void setEstudanteLogado(String nome, double saldo, Stage stage) {
-        this.nomeEstudante = nome;
-        this.saldoDevido = saldo;
-        this.primaryStage = stage;
-        this.caminhoArquivoLocal = "encomendas_" + nomeEstudante.replaceAll("[^a-zA-Z0-9]", "_") + ".csv";
-        if (encomendas == null) {
-            encomendas = FXCollections.observableArrayList();
-            loadEncomendas(); // Load encomendas after initializing caminhoArquivoLocal
-        }
-        listaEncomendas.setItems(encomendas);
-
-        listaEncomendas.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            boolean isSelected = newSelection != null;
-            encomendaRecebidaButton.setDisable(!isSelected);
-        });
+@FXML
+public void initialize() {
+    if (encomendas == null) {
+        encomendas = FXCollections.observableArrayList();
     }
+    loadEncomendas(); // Load data on initialization
+    listaEncomendas.setItems(encomendas);
+}
 
-    @FXML
-    public void initialize() {
-        // Do not load encomendas here; wait for setEstudanteLogado
-        if (encomendas == null) {
-            encomendas = FXCollections.observableArrayList();
-        }
-        listaEncomendas.setItems(encomendas);
+public void setEstudanteLogado(String nome, double saldo, Stage stage) {
+    this.nomeEstudante = nome;
+    this.saldoDevido = saldo;
+    this.primaryStage = stage;
+    this.caminhoArquivoLocal = "encomendas_" + nomeEstudante.replaceAll("[^a-zA-Z0-9]", "_") + ".csv";
+    if (encomendas == null) {
+        encomendas = FXCollections.observableArrayList();
     }
+    loadEncomendas(); // Reload data when student is set
+    listaEncomendas.setItems(encomendas);
+
+    listaEncomendas.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+        boolean isSelected = newSelection != null;
+        encomendaRecebidaButton.setDisable(!isSelected);
+    });
+}
+
+
+
+@FXML
+public void refreshEncomendas() {
+    loadEncomendas();
+    listaEncomendas.refresh();
+}
 
     @FXML
     public void encomendaRecebida() {
@@ -85,6 +102,7 @@ public class EncomendasController {
         listaEncomendas.refresh();
     }
 
+
     @FXML
     public void voltarParaMain() {
         try {
@@ -103,49 +121,91 @@ public class EncomendasController {
         }
     }
 
- private void loadEncomendas() {
+private void loadEncomendas() {
     try {
         encomendas.clear();
-        // Load student-specific local orders
-        if (Files.exists(Paths.get(caminhoArquivoLocal))) {
+        Set<String> uniqueEntries = new HashSet<>();
+        // Only load if caminhoArquivoLocal is set
+        if (caminhoArquivoLocal != null && Files.exists(Paths.get(caminhoArquivoLocal))) {
             List<String> linhas = Files.readAllLines(Paths.get(caminhoArquivoLocal), StandardCharsets.UTF_8);
             for (String linha : linhas) {
-                if (linha.contains("Estudante: " + nomeEstudante)) {
+                if (linha.contains("Estudante: " + nomeEstudante) && uniqueEntries.add(linha)) {
                     encomendas.add(linha);
+                    System.out.println("Loaded local: " + linha);
                 }
             }
         }
-        // Load external orders (from Transportadora)
         if (Files.exists(Paths.get(CAMINHO_ARQUIVO_REPORTADO))) {
             List<String> linhas = Files.readAllLines(Paths.get(CAMINHO_ARQUIVO_REPORTADO), StandardCharsets.UTF_8);
             for (String linha : linhas) {
-                if (linha.contains("Estudante: " + nomeEstudante)) {
+                if (linha.contains("Estudante: " + nomeEstudante) && uniqueEntries.add(linha)) {
                     encomendas.add(linha);
+                    System.out.println("Loaded external: " + linha);
                 }
             }
         }
-        // Manually add some sample orders for testing
-        if (nomeEstudante != null && encomendas.isEmpty()) {
+        if (encomendas.isEmpty() && nomeEstudante != null) {
             String dataRegistro = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-            encomendas.add("ID: ENC001 | Estudante: " + nomeEstudante + " | Registrado em: " + dataRegistro + " | Fonte: Local");
-            encomendas.add("ID: ENC002 | Estudante: " + nomeEstudante + " | Registrado em: " + dataRegistro + " | Fonte: Externa: DHL (ID: 12345)");
-            // Additional sample orders for specific students
-            if ("Clausemen Custodio Nanro".equals(nomeEstudante)) {
-                encomendas.add("ID: ENC003 | Estudante: Clausemen Custodio Nanro | Registrado em: " + dataRegistro + " | Fonte: Local");
-                encomendas.add("ID: ENC004 | Estudante: Clausemen Custodio Nanro | Registrado em: " + dataRegistro + " | Fonte: Externa: FedEx (ID: 67890)");
-            } else if ("Ana Silva".equals(nomeEstudante)) {
-                encomendas.add("ID: ENC005 | Estudante: Ana Silva | Registrado em: " + dataRegistro + " | Fonte: Local");
-            } else if ("Joao Maravilhoso".equals(nomeEstudante)) {
-                encomendas.add("ID: ENC006 | Estudante: Joao Maravilhoso | Registrado em: " + dataRegistro + " | Fonte: Externa: UPS (ID: 54321)");
+            String[] sampleOrders = {
+                "ID: ENC001 | Estudante: " + nomeEstudante + " | Registrado em: " + dataRegistro + " | Fonte: Local",
+                "ID: ENC002 | Estudante: " + nomeEstudante + " | Registrado em: " + dataRegistro + " | Fonte: Externa: DHL (ID: 12345)"
+            };
+            for (String order : sampleOrders) {
+                if (uniqueEntries.add(order)) {
+                    encomendas.add(order);
+                }
             }
-            saveToFileLocal(); // Save the manually added orders
+            if ("Clausemen Custodio Nanro".equals(nomeEstudante)) {
+                String[] specificOrders = {
+                    "ID: ENC003 | Estudante: Clausemen Custodio Nanro | Registrado em: " + dataRegistro + " | Fonte: Local",
+                    "ID: ENC004 | Estudante: Clausemen Custodio Nanro | Registrado em: " + dataRegistro + " | Fonte: Externa: FedEx (ID: 67890)"
+                };
+                for (String order : specificOrders) {
+                    if (uniqueEntries.add(order)) {
+                        encomendas.add(order);
+                    }
+                }
+            } else if ("Ana Silva".equals(nomeEstudante)) {
+                String order = "ID: ENC005 | Estudante: Ana Silva | Registrado em: " + dataRegistro + " | Fonte: Local";
+                if (uniqueEntries.add(order)) {
+                    encomendas.add(order);
+                }
+            } else if ("Joao Maravilhoso".equals(nomeEstudante)) {
+                String order = "ID: ENC006 | Estudante: Joao Maravilhoso | Registrado em: " + dataRegistro + " | Fonte: Externa: UPS (ID: 54321)";
+                if (uniqueEntries.add(order)) {
+                    encomendas.add(order);
+                }
+            }
+            saveToFileLocal();
         }
     } catch (IOException e) {
         e.printStackTrace();
+        System.out.println("Load error: " + e.getMessage());
         Alert alert = new Alert(Alert.AlertType.ERROR, "Erro ao carregar as encomendas: " + e.getMessage());
         alert.showAndWait();
     }
 }
+    private void startFileWatcher() {
+    new Thread(() -> {
+        try {
+            WatchService watchService = FileSystems.getDefault().newWatchService();
+            Path path = Paths.get(CAMINHO_ARQUIVO_REPORTADO).getParent();
+            path.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
+            while (true) {
+                WatchKey key = watchService.take();
+                for (WatchEvent<?> event : key.pollEvents()) {
+                    if (event.context().toString().equals("encomendas_reportadas.csv")) {
+                        Platform.runLater(this::refreshEncomendas);
+                    }
+                }
+                key.reset();
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }).start();
+}
+
     private void saveToFileLocal() {
         try {
             Files.createDirectories(Paths.get(caminhoArquivoLocal).getParent());

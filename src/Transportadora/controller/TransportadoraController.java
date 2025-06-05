@@ -8,7 +8,6 @@ import javafx.stage.Stage;
 import javafx.scene.control.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import Transportadora.model.Entrega;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -16,6 +15,7 @@ import java.nio.file.StandardOpenOption;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import Transportadora.model.Entrega;
 
 public class TransportadoraController {
 
@@ -29,13 +29,15 @@ public class TransportadoraController {
     private Button enviarButton;
     @FXML
     private Button cancelarButton;
+    
+    
 
     private ObservableList<String> entregasDisplay;
     private List<Entrega> entregas;
     private Stage primaryStage;
     private static final String CAMINHO_ARQUIVO_LOCAL = "entregas_transportadora.csv";
-    private static final String CAMINHO_ARQUIVO_SASUBI = "encomendas_reportadas.csv"; // Same as in EncomendasController
-
+private static final String CAMINHO_ARQUIVO_SASUBI = "/home/clausemen-custodio-nanro/shared/encomendas_reportadas.csv";
+    private static final String CAMINHO_ARQUIVO_REPORTADO = "/home/clausemen-custodio-nanro/shared/encomendas_reportadas.csv"; // EncomendasController
     public void setStage(Stage stage) {
         this.primaryStage = stage;
     }
@@ -80,43 +82,41 @@ public class TransportadoraController {
         inputTransportadoraId.clear();
     }
 
-    @FXML
-    public void enviarEntrega() {
-        String selected = listaEntregas.getSelectionModel().getSelectedItem();
-        if (selected != null) {
-            Entrega entrega = findEntregaByDisplayString(selected);
-            if (entrega == null || entrega.getStatus().equals("Enviada")) {
-                Alert alert = new Alert(Alert.AlertType.WARNING, "Entrega já enviada ou inválida!");
-                alert.showAndWait();
-                return;
-            }
+@FXML
+public void enviarEntrega() {
+    String selected = listaEntregas.getSelectionModel().getSelectedItem();
+    if (selected != null) {
+        Entrega entrega = findEntregaByDisplayString(selected);
+        if (entrega == null || entrega.getStatus().equals("Enviada")) {
+            Alert alert = new Alert(Alert.AlertType.WARNING, "Entrega já enviada ou inválida!");
+            alert.showAndWait();
+            return;
+        }
 
-            entrega.setStatus("Enviada");
-            // Update the display
-            int index = listaEntregas.getSelectionModel().getSelectedIndex();
-            entregasDisplay.set(index, entrega.toString());
+        entrega.setStatus("Enviada");
+        int index = listaEntregas.getSelectionModel().getSelectedIndex();
+        entregasDisplay.set(index, entrega.toString());
 
-            // Save to sasubiupgrade's encomendas_reportadas.csv
-            try {
-                Files.write(Paths.get(CAMINHO_ARQUIVO_SASUBI), 
-                    (entrega.toSasubiFormat() + "\n").getBytes(StandardCharsets.UTF_8),
-                    StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-            } catch (IOException e) {
-                e.printStackTrace();
-                Alert alert = new Alert(Alert.AlertType.ERROR, "Erro ao enviar entrega para o sistema SASUBI: " + e.getMessage());
-                alert.showAndWait();
-                return;
-            }
-
+        try {
+            Files.createDirectories(Paths.get(CAMINHO_ARQUIVO_SASUBI).getParent());
+            Files.write(Paths.get(CAMINHO_ARQUIVO_SASUBI), 
+                (entrega.toSasubiFormat() + "\n").getBytes(StandardCharsets.UTF_8),
+                StandardOpenOption.CREATE, StandardOpenOption.APPEND);
             saveEntregasLocal();
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "Entrega enviada com sucesso!");
             alert.showAndWait();
-        } else {
-            Alert alert = new Alert(Alert.AlertType.WARNING, "Selecione uma entrega para enviar!");
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Detailed error: " + e.getMessage());
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Erro ao enviar entrega para o sistema SASUBI: " + e.getMessage());
             alert.showAndWait();
+            return;
         }
+    } else {
+        Alert alert = new Alert(Alert.AlertType.WARNING, "Selecione uma entrega para enviar!");
+        alert.showAndWait();
     }
-
+}
     @FXML
     public void cancelarEntrega() {
         String selected = listaEntregas.getSelectionModel().getSelectedItem();
@@ -158,33 +158,63 @@ public class TransportadoraController {
     }
 
     private void loadEntregas() {
-        try {
-            if (Files.exists(Paths.get(CAMINHO_ARQUIVO_LOCAL))) {
-                List<String> linhas = Files.readAllLines(Paths.get(CAMINHO_ARQUIVO_LOCAL), StandardCharsets.UTF_8);
-                for (String linha : linhas) {
-                    if (!linha.trim().isEmpty()) {
-                        String[] partes = linha.split(" \\| ");
-                        if (partes.length == 5) {
-                            String id = partes[0].replace("ID: ", "").trim();
-                            String nome = partes[1].replace("Estudante: ", "").trim();
-                            String data = partes[2].replace("Registrado em: ", "").trim();
-                            String status = partes[3].replace("Status: ", "").trim();
-                            String transportadoraId = partes[4].replace("Transportadora ID: ", "").trim();
-
-                            Entrega entrega = new Entrega(id, nome, transportadoraId);
-                            entrega.setStatus(status);
+    try {
+        entregas.clear();
+        entregasDisplay.clear();
+        if (Files.exists(Paths.get(CAMINHO_ARQUIVO_LOCAL))) {
+            List<String> linhas = Files.readAllLines(Paths.get(CAMINHO_ARQUIVO_LOCAL), StandardCharsets.UTF_8);
+            for (String linha : linhas) {
+                if (!linha.trim().isEmpty()) {
+                    String[] partes = linha.split(" \\| ");
+                    if (partes.length == 5) {
+                        String id = partes[0].replace("ID: ", "").trim();
+                        String nome = partes[1].replace("Estudante: ", "").trim();
+                        String data = partes[2].replace("Registrado em: ", "").trim();
+                        String status = partes[3].replace("Status: ", "").trim();
+                        String transportadoraId = partes[4].replace("Transportadora ID: ", "").trim();
+                        Entrega entrega = new Entrega(id, nome, transportadoraId);
+                        entrega.setStatus(status);
+                        entregas.add(entrega);
+                        entregasDisplay.add(entrega.toString());
+                    }
+                }
+            }
+        }
+        // Check encomendas_reportadas.csv for Recebida status
+        if (Files.exists(Paths.get(CAMINHO_ARQUIVO_SASUBI))) {
+            List<String> linhas = Files.readAllLines(Paths.get(CAMINHO_ARQUIVO_SASUBI), StandardCharsets.UTF_8);
+            for (String linha : linhas) {
+                if (linha.contains("Fonte: Recebida")) {
+                    String[] partes = linha.split(" \\| ");
+                    if (partes.length == 4) {
+                        String id = partes[0].replace("ID: ", "").trim();
+                        String nome = partes[1].replace("Estudante: ", "").trim();
+                        String data = partes[2].replace("Registrado em: ", "").trim();
+                        String transportadoraId = partes[3].replace("Fonte: Recebida", "").replace("Fonte: Externa: Transportadora (ID: ", "").replace(")", "").trim();
+                        Entrega entrega = new Entrega(id, nome, transportadoraId);
+                        entrega.setStatus("Recebida");
+                        if (!entregas.stream().anyMatch(e -> e.getId().equals(id))) {
                             entregas.add(entrega);
                             entregasDisplay.add(entrega.toString());
+                        } else {
+                            entregas.stream().filter(e -> e.getId().equals(id)).findFirst().ifPresent(e -> {
+                                e.setStatus("Recebida");
+                                int index = entregasDisplay.indexOf(e.toString());
+                                if (index != -1) {
+                                    entregasDisplay.set(index, e.toString());
+                                }
+                            });
                         }
                     }
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Erro ao carregar entregas: " + e.getMessage());
-            alert.showAndWait();
         }
+    } catch (IOException e) {
+        e.printStackTrace();
+        Alert alert = new Alert(Alert.AlertType.ERROR, "Erro ao carregar entregas: " + e.getMessage());
+        alert.showAndWait();
     }
+}
 
     private void saveEntregasLocal() {
         try {
